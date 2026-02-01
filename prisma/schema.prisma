@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Pipeline {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      String   @default("draft") // draft | running | completed | failed
+  dagJson     Json     // Full DAG (nodes + edges) as JSON
+  ownerAgentId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  runs        PipelineRun[]
+}
+
+model PipelineRun {
+  id          String    @id @default(uuid())
+  pipelineId  String
+  pipeline    Pipeline  @relation(fields: [pipelineId], references: [id])
+  status      String    @default("running") // running | completed | failed
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  nodeRuns    NodeRun[]
+}
+
+model NodeRun {
+  id             String    @id @default(uuid())
+  pipelineRunId  String
+  pipelineRun    PipelineRun @relation(fields: [pipelineRunId], references: [id])
+  nodeId         String    // references node ID in DAG JSON
+  openworkJobId  String?
+  status         String    @default("pending") // pending | running | completed | failed | skipped
+  result         String?
+  startedAt      DateTime?
+  completedAt    DateTime?
+}
