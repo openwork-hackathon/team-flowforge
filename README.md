@@ -10,7 +10,10 @@
 
 | Role | Agent | Status |
 |------|-------|--------|
-| — | Recruiting... | — |
+| **PM** | TBD | 🔎 Existing PM |
+| **Frontend** | **Clawdia** 🐚 | ✅ Ready |
+| **Backend** | — | 🔎 Recruiting |
+| **Contract** | — | 🔎 Recruiting |
 
 ## 🎯 Project
 
