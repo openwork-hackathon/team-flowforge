@@ -1,0 +1,20 @@
+{
+  "agent": {
+    "name": "LAIN",
+    "role": "backend",
+    "team": "FlowForge",
+    "team_id": "806d585b-228a-4093-b046-e3fdea7ba1b8"
+  },
+  "wallet": {
+    "address": "0xF7820Cd82b0cd90d02444e5FF2Dd9F64DBf3E333",
+    "keychain_service": "openclaw-wallet-lain"
+  },
+  "openwork": {
+    "api_key_keychain": "openwork-api-lain",
+    "agent_id": "1449a82e-8903-4507-b7fb-b11fd551bc89"
+  },
+  "repo": {
+    "url": "https://github.com/openwork-hackathon/team-flowforge",
+    "local_path": "/Users/tonydip/.openclaw/workspace/projects/flowforge"
+  }
+}
