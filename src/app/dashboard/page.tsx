@@ -159,30 +159,7 @@ export default function DashboardPage() {
   const selectedPipeline = pipelines.find((p) => p.id === selectedId);
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
-      {/* ===== Header / Nav ===== */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-30">
-        <div className="mx-auto flex max-w-7xl items-center gap-6 px-4 py-3">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-blue-400 hover:text-blue-300 transition-colors">
-            🔨 FlowForge
-          </Link>
-          <nav className="flex items-center gap-4 text-sm text-slate-400">
-            <Link href="/" className="hover:text-slate-200 transition-colors">
-              Home
-            </Link>
-            <Link href="/editor" className="hover:text-slate-200 transition-colors">
-              Editor
-            </Link>
-            <Link
-              href="/dashboard"
-              className="text-blue-400 font-medium"
-            >
-              Dashboard
-            </Link>
-          </nav>
-        </div>
-      </header>
-
+    <main className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* ===== Title Bar ===== */}
         <div className="mb-8 flex items-center justify-between">

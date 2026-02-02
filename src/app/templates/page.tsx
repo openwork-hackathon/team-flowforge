@@ -105,24 +105,7 @@ export default function TemplatesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="text-lg font-bold text-blue-400 hover:text-blue-300 transition-colors">
-              🔨 FlowForge
-            </Link>
-            <div className="hidden sm:flex items-center gap-4 text-sm">
-              <Link href="/" className="text-slate-400 hover:text-slate-200 transition-colors">Home</Link>
-              <Link href="/editor" className="text-slate-400 hover:text-slate-200 transition-colors">Editor</Link>
-              <Link href="/dashboard" className="text-slate-400 hover:text-slate-200 transition-colors">Dashboard</Link>
-              <Link href="/templates" className="text-white font-medium">Templates</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-6 py-10">
         {/* Header */}
         <div className="mb-10">

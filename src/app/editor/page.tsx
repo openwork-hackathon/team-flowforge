@@ -21,6 +21,7 @@ import ConditionNode from "@/components/nodes/ConditionNode";
 import StartEndNode from "@/components/nodes/StartEndNode";
 import NodeSidebar from "@/components/NodeSidebar";
 import Toolbar, { type PipelineSummary, type SaveStatus } from "@/components/Toolbar";
+import TopBar from "@/components/TopBar";
 
 const nodeTypes = {
   job: JobNode,
@@ -429,19 +430,14 @@ export default function EditorPage() {
   }, [setNodes, setEdges]);
 
   return (
-    <div className="h-screen flex flex-col bg-slate-950">
-      {/* Header */}
-      <header className="h-12 border-b border-slate-700 flex items-center px-4 shrink-0 bg-slate-900">
-        <a href="/" className="text-lg font-bold text-blue-400">
-          🔨 FlowForge
-        </a>
-        <span className="ml-3 text-slate-500 text-sm">/ Editor</span>
-        {pipelineId && (
-          <span className="ml-2 text-[10px] text-slate-600 font-mono">
-            [{pipelineId.slice(0, 8)}]
-          </span>
-        )}
-      </header>
+    <div className="h-screen flex flex-col">
+      {/* Top Bar */}
+      <TopBar
+        pipelineName={pipelineName}
+        saveStatus={saveStatus}
+        pipelineId={pipelineId}
+        isRunning={isRunning}
+      />
 
       {/* Toolbar */}
       <Toolbar

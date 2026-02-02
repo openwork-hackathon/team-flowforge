@@ -1,34 +1,14 @@
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      {/* ── Navigation ── */}
-      <nav className="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-            🔨 FlowForge
-          </span>
-          <div className="flex gap-4">
-            <a href="/editor" className="text-sm text-slate-400 hover:text-white transition-colors">
-              Editor
-            </a>
-            <a href="/dashboard" className="text-sm text-slate-400 hover:text-white transition-colors">
-              Dashboard
-            </a>
-            <a href="/templates" className="text-sm text-slate-400 hover:text-white transition-colors">
-              Templates
-            </a>
-          </div>
-        </div>
-      </nav>
-
+    <main className="min-h-screen">
       {/* ── Hero ── */}
-      <section className="relative flex flex-col items-center justify-center text-center px-6 pt-40 pb-28">
+      <section className="relative flex flex-col items-center justify-center text-center px-6 pt-20 pb-28">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(56,189,248,0.08)_0%,_transparent_70%)]" />
         <div className="relative max-w-3xl">
           <h1 className="text-5xl sm:text-7xl font-extrabold leading-tight mb-6 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
             Agent Workflow Builder
           </h1>
-          <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10">
+          <p className="text-lg sm:text-xl text-forge-text-secondary max-w-2xl mx-auto mb-10">
             Design visual DAG pipelines for multi-agent orchestration on Openwork.
             Build, deploy, and monitor complex agent workflows — no boilerplate required.
           </p>
@@ -41,7 +21,7 @@ export default function Home() {
             </a>
             <a
               href="/dashboard"
-              className="px-8 py-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl font-semibold transition-colors"
+              className="px-8 py-3.5 glass-btn rounded-xl font-semibold transition-colors"
             >
               Dashboard
             </a>
@@ -54,7 +34,7 @@ export default function Home() {
         <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
           Features
         </h2>
-        <p className="text-slate-400 text-center mb-14 max-w-xl mx-auto">
+        <p className="text-forge-text-secondary text-center mb-14 max-w-xl mx-auto">
           Everything you need to build and manage multi-agent pipelines at scale.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -82,13 +62,13 @@ export default function Home() {
           ].map((f) => (
             <div
               key={f.title}
-              className="group bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-blue-500/40 transition-colors"
+              className="group glass-card rounded-2xl p-6 hover:border-blue-500/40 transition-colors"
             >
               <div className="text-4xl mb-4">{f.icon}</div>
               <h3 className="text-lg font-semibold mb-2 text-white group-hover:text-cyan-400 transition-colors">
                 {f.title}
               </h3>
-              <p className="text-sm text-slate-400 leading-relaxed">{f.desc}</p>
+              <p className="text-sm text-forge-text-secondary leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>
@@ -99,7 +79,7 @@ export default function Home() {
         <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
           How It Works
         </h2>
-        <p className="text-slate-400 text-center mb-16 max-w-lg mx-auto">
+        <p className="text-forge-text-secondary text-center mb-16 max-w-lg mx-auto">
           Three simple steps from idea to production.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -129,9 +109,9 @@ export default function Home() {
               </div>
               <div className="text-xs font-mono text-blue-400 mb-2">STEP {s.step}</div>
               <h3 className="text-xl font-semibold mb-2">{s.label}</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">{s.desc}</p>
+              <p className="text-sm text-forge-text-secondary leading-relaxed">{s.desc}</p>
               {i < 2 && (
-                <div className="hidden md:block absolute top-8 -right-4 text-slate-600 text-2xl">→</div>
+                <div className="hidden md:block absolute top-8 -right-4 text-forge-text-dim text-2xl">→</div>
               )}
             </div>
           ))}
@@ -143,7 +123,7 @@ export default function Home() {
         <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
           Meet the Team
         </h2>
-        <p className="text-slate-400 text-center mb-14 max-w-lg mx-auto">
+        <p className="text-forge-text-secondary text-center mb-14 max-w-lg mx-auto">
           Built during the Clawathon by four agents with one vision.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -155,22 +135,22 @@ export default function Home() {
           ].map((m) => (
             <div
               key={m.name}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center hover:border-blue-500/40 transition-colors"
+              className="glass-card rounded-2xl p-6 text-center hover:border-blue-500/40 transition-colors"
             >
               <div className="text-5xl mb-4">{m.emoji}</div>
               <h3 className={`text-lg font-bold bg-gradient-to-r ${m.color} bg-clip-text text-transparent`}>
                 {m.name}
               </h3>
-              <p className="text-sm text-slate-400 mt-1">{m.role}</p>
+              <p className="text-sm text-forge-text-secondary mt-1">{m.role}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-slate-800 mt-12">
+      <footer className="border-t border-forge-border mt-12">
         <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-sm text-slate-500">
+          <span className="text-sm text-forge-text-muted">
             © 2026 FlowForge · Built at Clawathon
           </span>
           <div className="flex gap-6 text-sm">
@@ -178,7 +158,7 @@ export default function Home() {
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 hover:text-white transition-colors"
+              className="text-forge-text-secondary hover:text-white transition-colors"
             >
               GitHub
             </a>
@@ -186,7 +166,7 @@ export default function Home() {
               href="https://openwork.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 hover:text-white transition-colors"
+              className="text-forge-text-secondary hover:text-white transition-colors"
             >
               Openwork
             </a>
@@ -194,7 +174,7 @@ export default function Home() {
               href="https://clawathon.dev"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 hover:text-white transition-colors"
+              className="text-forge-text-secondary hover:text-white transition-colors"
             >
               Clawathon
             </a>
