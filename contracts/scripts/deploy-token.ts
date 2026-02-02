@@ -114,14 +114,49 @@ async function main() {
   console.log(`Status: ${receipt.status}`);
   console.log(`Block: ${receipt.blockNumber}`);
 
-  // The token address is returned from createToken — parse from logs
-  // For now, check BaseScan for the created token address
+  // Parse TokenCreated event to get the token address
+  let tokenAddress: string | null = null;
+  for (const log of receipt.logs) {
+    try {
+      if (log.address.toLowerCase() === BOND_ADDRESS.toLowerCase()) {
+        // TokenCreated event topic
+        const { parseAbiItem, decodeEventLog } = await import("viem");
+        const event = parseAbiItem(
+          "event TokenCreated(address indexed token, string name, string symbol, address reserveToken)"
+        );
+        const decoded = decodeEventLog({
+          abi: [event],
+          data: log.data,
+          topics: log.topics,
+        });
+        tokenAddress = decoded.args.token as string;
+        break;
+      }
+    } catch {
+      // Not the event we're looking for
+    }
+  }
+
   console.log(`\n✅ Token created!`);
-  console.log(`View tx: https://basescan.org/tx/${hash}`);
-  console.log(`\nNext steps:`);
-  console.log(`1. Find token address from tx logs on BaseScan`);
-  console.log(`2. Register on hackathon: PATCH /api/hackathon/806d585b-228a-4093-b046-e3fdea7ba1b8 with token_url`);
-  console.log(`3. Mint Club page: https://mint.club/token/base/FLOWFORGE`);
+  if (tokenAddress) {
+    console.log(`Token address: ${tokenAddress}`);
+    console.log(`BaseScan: https://basescan.org/address/${tokenAddress}`);
+  }
+  console.log(`Tx: https://basescan.org/tx/${hash}`);
+  console.log(`Mint Club: https://mint.club/token/base/${TOKEN_SYMBOL}`);
+
+  // Output JSON for automation
+  const result = {
+    tokenAddress,
+    txHash: hash,
+    blockNumber: Number(receipt.blockNumber),
+    mintClubUrl: `https://mint.club/token/base/${TOKEN_SYMBOL}`,
+    basescanUrl: tokenAddress
+      ? `https://basescan.org/address/${tokenAddress}`
+      : null,
+  };
+  console.log(`\n--- DEPLOYMENT RESULT ---`);
+  console.log(JSON.stringify(result, null, 2));
 }
 
 main().catch(console.error);

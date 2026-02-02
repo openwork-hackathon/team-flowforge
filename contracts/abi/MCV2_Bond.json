@@ -1,5 +1,16 @@
 [
   {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
+      { "indexed": false, "internalType": "string", "name": "name", "type": "string" },
+      { "indexed": false, "internalType": "string", "name": "symbol", "type": "string" },
+      { "indexed": false, "internalType": "address", "name": "reserveToken", "type": "address" }
+    ],
+    "name": "TokenCreated",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "creationFee",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
