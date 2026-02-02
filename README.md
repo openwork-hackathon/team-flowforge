@@ -101,9 +101,79 @@ npm run dev
 │   │   └── api/          ← API routes
 │   ├── components/       ← Shared UI components
 │   ├── lib/              ← Utilities, Openwork client
+│   │   ├── execution-engine.ts  ← DAG traversal & orchestration
+│   │   ├── job-poller.ts        ← Openwork job polling
+│   │   └── websocket-events.ts  ← Real-time event system
 │   └── types/            ← TypeScript types
 ├── prisma/               ← Database schema
 └── contracts/            ← Solidity contracts
+```
+
+---
+
+## 🚀 Execution Engine API
+
+### Start Pipeline Execution
+```http
+POST /api/pipelines/:id/run
+Content-Type: application/json
+
+{
+  "input": { "param1": "value1" }  // Optional initial input
+}
+```
+
+**Response:**
+```json
+{
+  "data": {
+    "id": "run-uuid",
+    "pipelineId": "pipeline-uuid",
+    "status": "RUNNING",
+    "message": "Pipeline execution started",
+    "eventsUrl": "/api/runs/run-uuid/events"
+  }
+}
+```
+
+### Cancel Pipeline Run
+```http
+POST /api/runs/:id/cancel
+```
+
+### Real-time Events (SSE)
+```javascript
+// Subscribe to a specific run
+const events = new EventSource('/api/runs/run-uuid/events');
+
+// Or subscribe to ALL runs (dashboard)
+const allEvents = new EventSource('/api/events');
+
+events.onmessage = (e) => {
+  const event = JSON.parse(e.data);
+  console.log(event.type, event);
+};
+
+// Event types:
+// - run:started, run:completed, run:failed
+// - node:started, node:completed, node:failed
+// - job:created, job:progress
+```
+
+### Job Polling Status
+```http
+GET /api/jobs/polling       # Check active polls
+POST /api/jobs/polling      # Resume polling (server restart recovery)
+```
+
+### Webhook Endpoint (for Openwork callbacks)
+```http
+POST /api/webhooks/openwork
+{
+  "jobId": "openwork-job-id",
+  "status": "completed",
+  "result": { ... }
+}
 ```
 
 ## 🔗 Links

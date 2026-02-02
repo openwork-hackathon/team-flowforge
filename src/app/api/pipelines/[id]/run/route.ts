@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { runPipelineSchema } from '@/lib/validations';
 import { ApiError, handleApiError } from '@/lib/errors';
+import { startPipelineExecution, topologicalSort } from '@/lib/execution-engine';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const body = await request.json().catch(() => ({}));
     const validated = runPipelineSchema.parse(body);
 
-    // Get pipeline with nodes
+    // Get pipeline with nodes and edges
     const pipeline = await prisma.pipeline.findUnique({
       where: { id },
       include: { nodes: true, edges: true },
@@ -30,11 +31,34 @@ export async function POST(request: NextRequest, context: RouteContext) {
       throw new ApiError(400, 'Pipeline has no nodes to execute', 'EMPTY_PIPELINE');
     }
 
+    // Validate DAG structure before creating run
+    const nodeConfigs = pipeline.nodes.map((n) => ({
+      nodeId: n.nodeId,
+      type: n.type,
+      label: n.label,
+      config: n.config as Record<string, unknown>,
+    }));
+    const edgeConfigs = pipeline.edges.map((e) => ({
+      sourceNode: e.sourceNode,
+      targetNode: e.targetNode,
+      label: e.label || undefined,
+    }));
+
+    try {
+      topologicalSort(nodeConfigs, edgeConfigs);
+    } catch (error) {
+      throw new ApiError(
+        400,
+        error instanceof Error ? error.message : 'Invalid pipeline structure',
+        'INVALID_DAG'
+      );
+    }
+
     // Create the pipeline run with node runs for each node
     const run = await prisma.pipelineRun.create({
       data: {
         pipelineId: id,
-        status: 'PENDING',
+        status: 'RUNNING',
         input: (validated.input || {}) as object,
         nodeRuns: {
           create: pipeline.nodes.map((node) => ({
@@ -48,24 +72,34 @@ export async function POST(request: NextRequest, context: RouteContext) {
       },
     });
 
-    // TODO: In a real implementation, you would:
-    // 1. Determine execution order using topological sort based on edges
-    // 2. Start executing nodes (possibly via a job queue)
-    // 3. Update node statuses as they complete
-    // For now, we just create the run record
-
-    // Update run status to RUNNING
-    await prisma.pipelineRun.update({
-      where: { id: run.id },
-      data: { status: 'RUNNING' },
+    // Start pipeline execution asynchronously (don't await)
+    const inputData = (validated.input || {}) as Record<string, unknown>;
+    
+    startPipelineExecution({
+      runId: run.id,
+      pipelineId: id,
+      nodes: nodeConfigs,
+      edges: edgeConfigs,
+      input: inputData,
+    }).catch((error) => {
+      console.error('[RunAPI] Execution failed:', error);
+      // Update run status to failed
+      prisma.pipelineRun.update({
+        where: { id: run.id },
+        data: {
+          status: 'FAILED',
+          completedAt: new Date(),
+          output: { error: error instanceof Error ? error.message : 'Unknown error' },
+        },
+      }).catch(console.error);
     });
 
     return NextResponse.json(
       {
         data: {
           ...run,
-          status: 'RUNNING',
           message: 'Pipeline execution started',
+          eventsUrl: `/api/runs/${run.id}/events`,
         },
       },
       { status: 202 }
