@@ -1,0 +1,74 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "token", "type": "address" },
+      { "indexed": false, "internalType": "string", "name": "name", "type": "string" },
+      { "indexed": false, "internalType": "string", "name": "symbol", "type": "string" },
+      { "indexed": false, "internalType": "address", "name": "reserveToken", "type": "address" }
+    ],
+    "name": "TokenCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "creationFee",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "symbol", "type": "string" }
+        ],
+        "internalType": "struct MCV2_Bond.TokenParams",
+        "name": "tp",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          { "internalType": "uint16", "name": "mintRoyalty", "type": "uint16" },
+          { "internalType": "uint16", "name": "burnRoyalty", "type": "uint16" },
+          { "internalType": "address", "name": "reserveToken", "type": "address" },
+          { "internalType": "uint128", "name": "maxSupply", "type": "uint128" },
+          { "internalType": "uint128[]", "name": "stepRanges", "type": "uint128[]" },
+          { "internalType": "uint128[]", "name": "stepPrices", "type": "uint128[]" }
+        ],
+        "internalType": "struct MCV2_Bond.BondParams",
+        "name": "bp",
+        "type": "tuple"
+      }
+    ],
+    "name": "createToken",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "tokensToMint", "type": "uint256" },
+      { "internalType": "uint256", "name": "maxReserve", "type": "uint256" },
+      { "internalType": "address", "name": "receiver", "type": "address" }
+    ],
+    "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "tokensToBurn", "type": "uint256" },
+      { "internalType": "uint256", "name": "minRefund", "type": "uint256" },
+      { "internalType": "address", "name": "receiver", "type": "address" }
+    ],
+    "name": "burn",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
