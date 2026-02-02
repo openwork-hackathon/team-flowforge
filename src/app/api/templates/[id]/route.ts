@@ -8,19 +8,15 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
+
     const template = await prisma.pipeline.findFirst({
       where: {
         id,
         isTemplate: true,
       },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        dagJson: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
+        nodes: true,
+        edges: true,
       },
     });
 
