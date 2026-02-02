@@ -33,6 +33,7 @@ export interface Pipeline {
   status: PipelineStatus;
   nodes: PipelineNode[];
   edges: PipelineEdge[];
+  isTemplate?: boolean;
   createdAt: string;
   updatedAt: string;
 }
