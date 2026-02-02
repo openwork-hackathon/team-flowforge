@@ -24,7 +24,7 @@ Platform token created via Mint Club V2 bonding curve on Base.
 | MCV2_Bond | `0xc5a076cad94176c2996B32d8466Be1cE757FAa27` |
 | MCV2_Token | `0xAa70bC79fD1cB4a6FBA717018351F0C3c64B79Df` |
 | $OPENWORK | `0x299c30DD5974BF4D5bFE42C340CA40462816AB07` |
-| $FLOWFORGE | `TBD — pending deployment` |
+| $FLOWFORGE | `0x670eb4b36be5CEcfC4CCD006882841603A27C9A2` |
 
 ### Deploy
 
