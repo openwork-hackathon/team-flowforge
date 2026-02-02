@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import {
   ReactFlow,
   addEdge,
@@ -20,7 +20,7 @@ import JobNode from "@/components/nodes/JobNode";
 import ConditionNode from "@/components/nodes/ConditionNode";
 import StartEndNode from "@/components/nodes/StartEndNode";
 import NodeSidebar from "@/components/NodeSidebar";
-import Toolbar from "@/components/Toolbar";
+import Toolbar, { type PipelineSummary, type SaveStatus } from "@/components/Toolbar";
 
 const nodeTypes = {
   job: JobNode,
@@ -79,22 +79,81 @@ const defaultEdges: Edge[] = [
 
 let nodeIdCounter = 10;
 
+// ── Toast notification ──────────────────────────────────────────────
+interface Toast {
+  id: number;
+  message: string;
+  type: "success" | "error" | "info";
+}
+
+let toastId = 0;
+
+function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: number) => void }) {
+  return (
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+      {toasts.map((t) => {
+        const colors = {
+          success: "bg-emerald-900/90 border-emerald-600 text-emerald-200",
+          error: "bg-red-900/90 border-red-600 text-red-200",
+          info: "bg-blue-900/90 border-blue-600 text-blue-200",
+        };
+        return (
+          <div
+            key={t.id}
+            className={`px-4 py-2.5 rounded-lg border text-sm shadow-lg backdrop-blur-sm animate-slide-up ${colors[t.type]}`}
+          >
+            <div className="flex items-center gap-2">
+              <span>{t.type === "success" ? "✓" : t.type === "error" ? "✕" : "ℹ"}</span>
+              <span>{t.message}</span>
+              <button
+                onClick={() => onDismiss(t.id)}
+                className="ml-2 opacity-60 hover:opacity-100"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Main Editor ─────────────────────────────────────────────────────
 export default function EditorPage() {
   const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(defaultEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [pipelineName, setPipelineName] = useState("My Workflow");
+  const [pipelineId, setPipelineId] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("unsaved");
+  const [pipelines, setPipelines] = useState<PipelineSummary[]>([]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
+  // Toast helpers
+  const addToast = useCallback((message: string, type: Toast["type"] = "info") => {
+    const id = ++toastId;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 5000);
+  }, []);
+
+  const dismissToast = useCallback((id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  // Mark unsaved when nodes/edges/name change
+  useEffect(() => {
+    setSaveStatus((prev) => (prev === "saving" ? prev : "unsaved"));
+  }, [nodes, edges, pipelineName]);
+
+  // ── ReactFlow callbacks ─────────────────────────────────────────
   const onConnect = useCallback(
     (connection: Connection) => {
       setEdges((eds) =>
         addEdge(
-          {
-            ...connection,
-            animated: true,
-            style: { stroke: "#475569" },
-          },
+          { ...connection, animated: true, style: { stroke: "#475569" } },
           eds
         )
       );
@@ -155,8 +214,9 @@ export default function EditorPage() {
     [setNodes]
   );
 
-  const exportWorkflow = useCallback(() => {
-    const workflow = {
+  // ── Build workflow payload ──────────────────────────────────────
+  const buildPayload = useCallback(() => {
+    return {
       name: pipelineName,
       nodes: nodes.map((n) => ({
         nodeId: n.id,
@@ -175,11 +235,135 @@ export default function EditorPage() {
         label: (e as Edge & { label?: string }).label || undefined,
       })),
     };
-    return workflow;
   }, [nodes, edges, pipelineName]);
 
-  const onSave = useCallback(() => {
-    const workflow = exportWorkflow();
+  // ── Save to API ─────────────────────────────────────────────────
+  const onSave = useCallback(async () => {
+    setSaveStatus("saving");
+    const payload = buildPayload();
+
+    try {
+      let res: Response;
+      if (pipelineId) {
+        res = await fetch(`/api/pipelines/${pipelineId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        res = await fetch("/api/pipelines", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: "Unknown error" }));
+        throw new Error(err.message || `HTTP ${res.status}`);
+      }
+
+      const { data } = await res.json();
+      if (data.id && !pipelineId) {
+        setPipelineId(data.id);
+      }
+      setSaveStatus("saved");
+      addToast(pipelineId ? "Pipeline updated" : "Pipeline created", "success");
+    } catch (err: unknown) {
+      setSaveStatus("error");
+      addToast(`Save failed: ${(err as Error).message}`, "error");
+    }
+  }, [buildPayload, pipelineId, addToast]);
+
+  // ── Load pipeline list ──────────────────────────────────────────
+  const refreshPipelines = useCallback(async () => {
+    try {
+      const res = await fetch("/api/pipelines?limit=50");
+      if (!res.ok) return;
+      const { data } = await res.json();
+      setPipelines(data);
+    } catch {
+      // silent
+    }
+  }, []);
+
+  // ── Load single pipeline ────────────────────────────────────────
+  const loadPipeline = useCallback(
+    async (id: string) => {
+      try {
+        const res = await fetch(`/api/pipelines/${id}`);
+        if (!res.ok) throw new Error("Failed to load pipeline");
+        const { data } = await res.json();
+
+        setPipelineName(data.name || "Untitled");
+        setPipelineId(data.id);
+
+        if (data.nodes) {
+          setNodes(
+            data.nodes.map((n: Record<string, unknown>) => ({
+              id: n.nodeId,
+              type: n.type,
+              position: { x: n.positionX, y: n.positionY },
+              data: (n.config && typeof n.config === "object" && Object.keys(n.config as object).length > 0)
+                ? n.config
+                : { label: n.label },
+            }))
+          );
+        }
+        if (data.edges) {
+          setEdges(
+            data.edges.map((e: Record<string, unknown>) => ({
+              id: e.edgeId,
+              source: e.sourceNode,
+              target: e.targetNode,
+              sourceHandle: e.sourceHandle,
+              targetHandle: e.targetHandle,
+              animated: true,
+            }))
+          );
+        }
+
+        // After loading, mark as saved
+        setTimeout(() => setSaveStatus("saved"), 0);
+        addToast(`Loaded "${data.name}"`, "info");
+      } catch (err: unknown) {
+        addToast(`Load failed: ${(err as Error).message}`, "error");
+      }
+    },
+    [setNodes, setEdges, addToast]
+  );
+
+  // ── Run pipeline ────────────────────────────────────────────────
+  const onRun = useCallback(async () => {
+    if (!pipelineId) {
+      addToast("Save pipeline before running", "error");
+      return;
+    }
+    setIsRunning(true);
+    try {
+      const res = await fetch(`/api/pipelines/${pipelineId}/run`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: "Unknown error" }));
+        throw new Error(err.message || `HTTP ${res.status}`);
+      }
+
+      const { data } = await res.json();
+      addToast(`Pipeline run started (${data.status})`, "success");
+    } catch (err: unknown) {
+      addToast(`Run failed: ${(err as Error).message}`, "error");
+    } finally {
+      setIsRunning(false);
+    }
+  }, [pipelineId, addToast]);
+
+  // ── Export JSON (local file download) ───────────────────────────
+  const onExportJSON = useCallback(() => {
+    const workflow = buildPayload();
     const json = JSON.stringify(workflow, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -188,9 +372,10 @@ export default function EditorPage() {
     a.download = `${pipelineName.replace(/\s+/g, "-").toLowerCase()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [exportWorkflow, pipelineName]);
+  }, [buildPayload, pipelineName]);
 
-  const onLoad = useCallback(() => {
+  // ── Import JSON (local file upload) ─────────────────────────────
+  const onImportJSON = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".json";
@@ -201,6 +386,7 @@ export default function EditorPage() {
       try {
         const workflow = JSON.parse(text);
         if (workflow.name) setPipelineName(workflow.name);
+        setPipelineId(null); // Imported file = new pipeline
         if (workflow.nodes) {
           setNodes(
             workflow.nodes.map((n: Record<string, unknown>) => ({
@@ -223,18 +409,22 @@ export default function EditorPage() {
             }))
           );
         }
+        addToast("Imported workflow from file", "info");
       } catch {
-        alert("Invalid workflow file");
+        addToast("Invalid workflow JSON file", "error");
       }
     };
     input.click();
-  }, [setNodes, setEdges]);
+  }, [setNodes, setEdges, addToast]);
 
+  // ── Clear canvas ────────────────────────────────────────────────
   const onClear = useCallback(() => {
     if (confirm("Clear the entire canvas?")) {
       setNodes([]);
       setEdges([]);
       setSelectedNode(null);
+      setPipelineId(null);
+      setSaveStatus("unsaved");
     }
   }, [setNodes, setEdges]);
 
@@ -246,16 +436,29 @@ export default function EditorPage() {
           🔨 FlowForge
         </a>
         <span className="ml-3 text-slate-500 text-sm">/ Editor</span>
+        {pipelineId && (
+          <span className="ml-2 text-[10px] text-slate-600 font-mono">
+            [{pipelineId.slice(0, 8)}]
+          </span>
+        )}
       </header>
 
       {/* Toolbar */}
       <Toolbar
         onAddNode={addNode}
         onSave={onSave}
-        onLoad={onLoad}
+        onExportJSON={onExportJSON}
+        onImportJSON={onImportJSON}
         onClear={onClear}
+        onRun={onRun}
+        onLoadPipeline={loadPipeline}
         pipelineName={pipelineName}
         onNameChange={setPipelineName}
+        saveStatus={saveStatus}
+        pipelineId={pipelineId}
+        pipelines={pipelines}
+        onRefreshPipelines={refreshPipelines}
+        isRunning={isRunning}
       />
 
       {/* Editor + Sidebar */}
@@ -304,6 +507,26 @@ export default function EditorPage() {
           onClose={() => setSelectedNode(null)}
         />
       </div>
+
+      {/* Toast notifications */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+
+      {/* Slide-up animation */}
+      <style jsx global>{`
+        @keyframes slide-up {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-slide-up {
+          animation: slide-up 0.2s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
