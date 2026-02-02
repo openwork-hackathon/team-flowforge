@@ -8,35 +8,93 @@ datasource db {
 }
 
 model Pipeline {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  status      String   @default("draft") // draft | running | completed | failed
-  dagJson     Json     // Full DAG (nodes + edges) as JSON
+  id           String         @id @default(uuid())
+  name         String
+  description  String?
+  status       PipelineStatus @default(DRAFT)
+  isTemplate   Boolean        @default(false)
   ownerAgentId String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  runs        PipelineRun[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  nodes        PipelineNode[]
+  edges        PipelineEdge[]
+  runs         PipelineRun[]
+}
+
+model PipelineNode {
+  id         String   @id @default(uuid())
+  pipelineId String
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  nodeId     String   // React Flow node ID
+  type       String   // e.g., "agent", "condition", "input", "output"
+  label      String
+  positionX  Float
+  positionY  Float
+  config     Json     @default("{}") // Node-specific configuration
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([pipelineId, nodeId])
+  @@index([pipelineId])
+}
+
+model PipelineEdge {
+  id         String   @id @default(uuid())
+  pipelineId String
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  edgeId     String   // React Flow edge ID
+  sourceNode String   // Source node ID
+  targetNode String   // Target node ID
+  sourceHandle String? // Output handle
+  targetHandle String? // Input handle
+  label      String?
+  createdAt  DateTime @default(now())
+
+  @@unique([pipelineId, edgeId])
+  @@index([pipelineId])
 }
 
 model PipelineRun {
-  id          String    @id @default(uuid())
+  id          String        @id @default(uuid())
   pipelineId  String
-  pipeline    Pipeline  @relation(fields: [pipelineId], references: [id])
-  status      String    @default("running") // running | completed | failed
-  startedAt   DateTime  @default(now())
+  pipeline    Pipeline      @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  status      RunStatus     @default(PENDING)
+  input       Json?         // Initial input data
+  output      Json?         // Final output data
+  startedAt   DateTime      @default(now())
   completedAt DateTime?
   nodeRuns    NodeRun[]
+
+  @@index([pipelineId])
 }
 
 model NodeRun {
-  id             String    @id @default(uuid())
-  pipelineRunId  String
-  pipelineRun    PipelineRun @relation(fields: [pipelineRunId], references: [id])
-  nodeId         String    // references node ID in DAG JSON
-  openworkJobId  String?
-  status         String    @default("pending") // pending | running | completed | failed | skipped
-  result         String?
-  startedAt      DateTime?
-  completedAt    DateTime?
+  id            String      @id @default(uuid())
+  pipelineRunId String
+  pipelineRun   PipelineRun @relation(fields: [pipelineRunId], references: [id], onDelete: Cascade)
+  nodeId        String      // Reference to PipelineNode.nodeId
+  openworkJobId String?     // Openwork job ID if this is an agent node
+  status        RunStatus   @default(PENDING)
+  input         Json?
+  output        Json?
+  error         String?
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  @@index([pipelineRunId])
+  @@index([openworkJobId])
+}
+
+enum PipelineStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum RunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  SKIPPED
 }
