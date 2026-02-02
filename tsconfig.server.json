@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "noEmit": false,
+    "esModuleInterop": true
+  },
+  "include": ["server.ts", "src/lib/socket-server.ts", "src/lib/websocket-events.ts"],
+  "exclude": ["node_modules"]
+}
