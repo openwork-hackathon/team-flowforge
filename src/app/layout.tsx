@@ -17,8 +17,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} min-h-screen bg-forge-950 text-slate-200`}>
-        {children}
+      <body
+        className={`${inter.className} min-h-screen bg-forge-bg text-forge-text-primary`}
+      >
+        {/* Starfield + mesh gradient backgrounds */}
+        <div className="starfield" aria-hidden="true" />
+        <div className="mesh-gradient" aria-hidden="true" />
+
+        {/* Content */}
+        <div className="relative z-10">{children}</div>
       </body>
     </html>
   );
