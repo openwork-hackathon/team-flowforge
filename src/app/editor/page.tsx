@@ -19,6 +19,7 @@ import "@xyflow/react/dist/style.css";
 import JobNode from "@/components/nodes/JobNode";
 import ConditionNode from "@/components/nodes/ConditionNode";
 import StartEndNode from "@/components/nodes/StartEndNode";
+import EnergyEdge from "@/components/edges/EnergyEdge";
 import NodeSidebar from "@/components/NodeSidebar";
 import Toolbar, { type PipelineSummary, type SaveStatus } from "@/components/Toolbar";
 import TopBar from "@/components/TopBar";
@@ -28,6 +29,10 @@ const nodeTypes = {
   condition: ConditionNode,
   start: StartEndNode,
   end: StartEndNode,
+};
+
+const edgeTypes = {
+  energy: EnergyEdge,
 };
 
 // Default starter workflow
@@ -73,9 +78,9 @@ const defaultNodes: Node[] = [
 ];
 
 const defaultEdges: Edge[] = [
-  { id: "e-start-job1", source: "start-1", target: "job-1", animated: true },
-  { id: "e-job1-job2", source: "job-1", target: "job-2", animated: true },
-  { id: "e-job2-end", source: "job-2", target: "end-1", animated: true },
+  { id: "e-start-job1", source: "start-1", target: "job-1", type: "energy" },
+  { id: "e-job1-job2", source: "job-1", target: "job-2", type: "energy" },
+  { id: "e-job2-end", source: "job-2", target: "end-1", type: "energy" },
 ];
 
 let nodeIdCounter = 10;
@@ -94,14 +99,14 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
       {toasts.map((t) => {
         const colors = {
-          success: "bg-emerald-900/90 border-emerald-600 text-emerald-200",
-          error: "bg-red-900/90 border-red-600 text-red-200",
-          info: "bg-blue-900/90 border-blue-600 text-blue-200",
+          success: "border-emerald-500/30 text-emerald-300",
+          error: "border-red-500/30 text-red-300",
+          info: "border-forge-blue/30 text-forge-blue-light",
         };
         return (
           <div
             key={t.id}
-            className={`px-4 py-2.5 rounded-lg border text-sm shadow-lg backdrop-blur-sm animate-slide-up ${colors[t.type]}`}
+            className={`glass-panel px-4 py-2.5 rounded-xl text-sm shadow-card-depth animate-slide-up ${colors[t.type]}`}
           >
             <div className="flex items-center gap-2">
               <span>{t.type === "success" ? "✓" : t.type === "error" ? "✕" : "ℹ"}</span>
@@ -154,7 +159,7 @@ export default function EditorPage() {
     (connection: Connection) => {
       setEdges((eds) =>
         addEdge(
-          { ...connection, animated: true, style: { stroke: "#475569" } },
+          { ...connection, type: "energy" },
           eds
         )
       );
@@ -319,7 +324,7 @@ export default function EditorPage() {
               target: e.targetNode,
               sourceHandle: e.sourceHandle,
               targetHandle: e.targetHandle,
-              animated: true,
+              type: "energy",
             }))
           );
         }
@@ -406,7 +411,7 @@ export default function EditorPage() {
               target: e.targetNode,
               sourceHandle: e.sourceHandle,
               targetHandle: e.targetHandle,
-              animated: true,
+              type: "energy",
             }))
           );
         }
@@ -469,29 +474,29 @@ export default function EditorPage() {
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             fitView
             defaultEdgeOptions={{
-              animated: true,
-              style: { stroke: "#475569", strokeWidth: 2 },
+              type: "energy",
             }}
-            className="bg-slate-950"
+            className="!bg-forge-bg"
           >
-            <Controls className="!bg-slate-800 !border-slate-700 !rounded-lg [&>button]:!bg-slate-800 [&>button]:!border-slate-600 [&>button]:!text-slate-400 [&>button:hover]:!bg-slate-700" />
+            <Controls className="!bg-forge-card-solid !border !border-forge-border !rounded-xl !shadow-glass [&>button]:!bg-forge-card-solid [&>button]:!border-forge-border [&>button]:!text-forge-text-secondary [&>button:hover]:!bg-forge-bg-subtle [&>button:hover]:!text-forge-text-primary" />
             <Background
               variant={BackgroundVariant.Dots}
-              gap={20}
+              gap={24}
               size={1}
-              color="#1e293b"
+              color="rgba(59, 130, 246, 0.06)"
             />
             <MiniMap
-              className="!bg-slate-900 !border-slate-700 !rounded-lg"
+              className="!bg-forge-card-solid/80 !border !border-forge-border !rounded-xl !shadow-glass !backdrop-blur-lg"
               nodeColor={(n) => {
-                if (n.type === "start") return "#22c55e";
+                if (n.type === "start") return "#10b981";
                 if (n.type === "end") return "#ef4444";
                 if (n.type === "condition") return "#f59e0b";
                 return "#3b82f6";
               }}
-              maskColor="rgba(15, 23, 42, 0.8)"
+              maskColor="rgba(5, 5, 8, 0.85)"
             />
           </ReactFlow>
         </div>
@@ -507,22 +512,7 @@ export default function EditorPage() {
       {/* Toast notifications */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      {/* Slide-up animation */}
-      <style jsx global>{`
-        @keyframes slide-up {
-          from {
-            opacity: 0;
-            transform: translateY(12px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slide-up {
-          animation: slide-up 0.2s ease-out;
-        }
-      `}</style>
+      {/* Animations handled by design system (tailwind.config.ts) */}
     </div>
   );
 }

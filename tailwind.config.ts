@@ -86,6 +86,8 @@ const config: Config = {
         "slide-in-left": "slide-in-left 0.2s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
+        "node-enter": "scale-in 0.2s ease-out",
+        "glow-pulse-subtle": "glow-pulse-subtle 3s ease-in-out infinite",
         shimmer: "shimmer 2s linear infinite",
         "gradient-shift": "gradient-shift 8s ease infinite",
         twinkle: "twinkle 4s ease-in-out infinite",
@@ -144,6 +146,10 @@ const config: Config = {
         "gradient-shift": {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
+        },
+        "glow-pulse-subtle": {
+          "0%, 100%": { boxShadow: "0 0 12px rgba(16, 185, 129, 0.15)" },
+          "50%": { boxShadow: "0 0 24px rgba(16, 185, 129, 0.3)" },
         },
         twinkle: {
           "0%, 100%": { opacity: "0.2" },
