@@ -14,6 +14,9 @@ export default function Home() {
             <a href="/dashboard" className="text-sm text-slate-400 hover:text-white transition-colors">
               Dashboard
             </a>
+            <a href="/templates" className="text-sm text-slate-400 hover:text-white transition-colors">
+              Templates
+            </a>
           </div>
         </div>
       </nav>
