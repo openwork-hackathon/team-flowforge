@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Sidebar from "@/components/Sidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,8 +25,14 @@ export default function RootLayout({
         <div className="starfield" aria-hidden="true" />
         <div className="mesh-gradient" aria-hidden="true" />
 
-        {/* Content */}
-        <div className="relative z-10">{children}</div>
+        {/* App shell */}
+        <div className="relative z-10 flex min-h-screen">
+          {/* Sidebar */}
+          <Sidebar />
+
+          {/* Main content area — offset for sidebar on desktop */}
+          <main className="flex-1 md:ml-14 pb-16 md:pb-0">{children}</main>
+        </div>
       </body>
     </html>
   );
