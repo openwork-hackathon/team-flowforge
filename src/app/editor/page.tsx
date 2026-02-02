@@ -434,6 +434,39 @@ export default function EditorPage() {
     }
   }, [setNodes, setEdges]);
 
+  // ── Keyboard shortcuts ──────────────────────────────────────────
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      const mod = e.metaKey || e.ctrlKey;
+
+      // Ctrl/Cmd + S → Save
+      if (mod && e.key === "s") {
+        e.preventDefault();
+        onSave();
+      }
+      // Ctrl/Cmd + E → Export JSON
+      if (mod && e.key === "e") {
+        e.preventDefault();
+        onExportJSON();
+      }
+      // Delete/Backspace → Delete selected node
+      if ((e.key === "Delete" || e.key === "Backspace") && selectedNode) {
+        // Don't delete if user is typing in an input
+        if ((e.target as HTMLElement).tagName === "INPUT" || (e.target as HTMLElement).tagName === "TEXTAREA") return;
+        e.preventDefault();
+        setNodes((nds) => nds.filter((n) => n.id !== selectedNode.id));
+        setEdges((eds) => eds.filter((ed) => ed.source !== selectedNode.id && ed.target !== selectedNode.id));
+        setSelectedNode(null);
+      }
+      // Escape → Deselect / close sidebar
+      if (e.key === "Escape") {
+        setSelectedNode(null);
+      }
+    }
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onSave, onExportJSON, selectedNode, setNodes, setEdges]);
+
   return (
     <div className="h-screen flex flex-col">
       {/* Top Bar */}
@@ -444,27 +477,26 @@ export default function EditorPage() {
         isRunning={isRunning}
       />
 
-      {/* Toolbar */}
-      <Toolbar
-        onAddNode={addNode}
-        onSave={onSave}
-        onExportJSON={onExportJSON}
-        onImportJSON={onImportJSON}
-        onClear={onClear}
-        onRun={onRun}
-        onLoadPipeline={loadPipeline}
-        pipelineName={pipelineName}
-        onNameChange={setPipelineName}
-        saveStatus={saveStatus}
-        pipelineId={pipelineId}
-        pipelines={pipelines}
-        onRefreshPipelines={refreshPipelines}
-        isRunning={isRunning}
-      />
-
       {/* Editor + Sidebar */}
       <div className="flex-1 flex">
-        <div className="flex-1" ref={reactFlowWrapper}>
+        <div className="flex-1 relative" ref={reactFlowWrapper}>
+          {/* Floating Toolbar */}
+          <Toolbar
+            onAddNode={addNode}
+            onSave={onSave}
+            onExportJSON={onExportJSON}
+            onImportJSON={onImportJSON}
+            onClear={onClear}
+            onRun={onRun}
+            onLoadPipeline={loadPipeline}
+            pipelineName={pipelineName}
+            onNameChange={setPipelineName}
+            saveStatus={saveStatus}
+            pipelineId={pipelineId}
+            pipelines={pipelines}
+            onRefreshPipelines={refreshPipelines}
+            isRunning={isRunning}
+          />
           <ReactFlow
             nodes={nodes}
             edges={edges}
