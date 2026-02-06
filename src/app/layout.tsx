@@ -39,3 +39,5 @@ export default function RootLayout({
 }
 // Updated: Fri Feb  6 04:42:38 PM UTC 2026
 /* Rebuild 1770406110195681332 */
+
+import { BUILD_TIME } from '../version';
