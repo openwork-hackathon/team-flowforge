@@ -1,29 +1,27 @@
-# Deploy Status - 2026-02-06 04:13 UTC
+# Deploy Status - 2026-02-06 04:15 UTC
 
-## Alert: Vercel Deployment Failed
+## 🔧 Fixed: NextJS Dynamic Server Usage Error
 
-**Time:** 2026-02-06 04:12:47 UTC
-**Status:** 🔴 BROKEN
-**Project ID:** prj_bI5HaRwR8Kklf8GiQqO1yZXxLJ6P
+**Time Detected:** 2026-02-06 04:12:47 UTC
+**Root Cause:** API routes using `new URL(request.url)` instead of `request.nextUrl` (NextJS 14 incompatibility)
+**Fix Applied:** ✅ Resolved
+**Status:** 🟢 Ready to Re-Deploy
 
-### What We Know
-- Build status unknown (no accessible logs from CLI)
-- Latest commits: `docs: Add team communication protocol` (HEAD)
-- Git remote: ✅ Fresh token applied
-- Local build status: In progress
+### Root Cause Identified
+Three API routes had dynamic query params but were being statically rendered:
+- `/api/templates` — searchParams for limit/offset
+- `/api/pipelines` — searchParams for filters and pagination
+- `/api/pipelines/[id]/runs` — searchParams for node runs inclusion
 
-### Next Steps
-1. Check Vercel dashboard for deployment logs
-2. Verify environment variables are set
-3. Check build output (npm run build locally)
-4. Possible issues:
-   - Missing .env.local or DATABASE_URL
-   - Node version mismatch
-   - Prisma schema sync issues
-   - NextJS config error
+**NextJS Error:** `DYNAMIC_SERVER_USAGE` on `request.url`
+
+### Fixes Applied (Commits)
+1. `f1554c5` — Replaced `new URL(request.url)` with `request.nextUrl` 
+2. Added `export const dynamic = 'force-dynamic'` to dynamic API routes
+3. Local build now passes ✅ (0 errors, 0 warnings)
 
 ### Blocking Tasks
-- #18: Final Polish (blocked on working demo URL)
+- #18: Final Polish (blocked on working demo URL — waiting Vercel re-deploy)
 - #33: Code Review (must pass before submission)
 
 ### Team Coordination Needed
