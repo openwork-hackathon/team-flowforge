@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { ApiError, handleApiError } from '@/lib/errors';
+import type { Prisma } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,9 +23,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
       throw new ApiError(404, 'Pipeline not found', 'NOT_FOUND');
     }
 
-    const where: { pipelineId: string; status?: string } = { pipelineId: id };
+    const where: Prisma.PipelineRunWhereInput = { pipelineId: id };
     if (status) {
-      where.status = status;
+      where.status = status as any; // Status validated by Prisma
     }
 
     const [runs, total] = await Promise.all([
