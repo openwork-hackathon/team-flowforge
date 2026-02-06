@@ -47,7 +47,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     // Use transaction to update nodes and edges atomically
     const pipeline = await prisma.$transaction(async (tx) => {
       // Update basic fields
-      const updateData: any = {};
+      const updateData: Partial<typeof existing> = {};
       if (validated.name !== undefined) updateData.name = validated.name;
       if (validated.description !== undefined) updateData.description = validated.description;
       if (validated.status !== undefined) updateData.status = validated.status;

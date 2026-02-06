@@ -22,7 +22,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       throw new ApiError(404, 'Pipeline not found', 'NOT_FOUND');
     }
 
-    const where: any = { pipelineId: id };
+    const where: { pipelineId: string; status?: string } = { pipelineId: id };
     if (status) {
       where.status = status;
     }

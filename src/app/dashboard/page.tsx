@@ -84,8 +84,8 @@ export default function DashboardPage() {
       if (!res.ok) throw new Error(`Failed to fetch pipelines (${res.status})`);
       const json = await res.json();
       setPipelines(json.data ?? []);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
@@ -172,6 +172,7 @@ export default function DashboardPage() {
           <Link
             href="/editor"
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
+            aria-label="Create a new pipeline"
           >
             + New Pipeline
           </Link>
@@ -212,6 +213,7 @@ export default function DashboardPage() {
             <Link
               href="/editor"
               className="mt-6 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
+              aria-label="Open the pipeline editor to create your first pipeline"
             >
               Open Editor →
             </Link>
@@ -276,7 +278,7 @@ export default function DashboardPage() {
                             handleRun(p.id);
                           }}
                           className="rounded-md bg-blue-600/80 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500 transition-colors"
-                          title="Run pipeline"
+                          aria-label={`Run pipeline ${p.name}`}
                         >
                           ▶ Run
                         </button>
@@ -284,6 +286,7 @@ export default function DashboardPage() {
                           href={`/editor?pipeline=${p.id}`}
                           onClick={(e) => e.stopPropagation()}
                           className="rounded-md bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 transition-colors"
+                          aria-label={`Edit pipeline ${p.name}`}
                         >
                           ✏️ Edit
                         </Link>
@@ -293,7 +296,7 @@ export default function DashboardPage() {
                             handleDelete(p.id, p.name);
                           }}
                           className="rounded-md bg-slate-800 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-900/40 transition-colors"
-                          title="Delete pipeline"
+                          aria-label={`Delete pipeline ${p.name}`}
                         >
                           🗑 Delete
                         </button>
