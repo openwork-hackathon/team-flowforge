@@ -2,13 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { ApiError, handleApiError } from '@/lib/errors';
 
+export const dynamic = 'force-dynamic';
+
 type RouteContext = { params: Promise<{ id: string }> };
 
 // GET /api/pipelines/:id/runs - Get all runs for a pipeline
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params;
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = request.nextUrl;
     const includeNodeRuns = searchParams.get('includeNodeRuns') === 'true';
     const status = searchParams.get('status');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);

@@ -3,10 +3,12 @@ import prisma from '@/lib/prisma';
 import { createPipelineSchema } from '@/lib/validations';
 import { handleApiError } from '@/lib/errors';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/pipelines - List all pipelines
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = request.nextUrl;
     const includeNodes = searchParams.get('includeNodes') === 'true';
     const includeEdges = searchParams.get('includeEdges') === 'true';
     const status = searchParams.get('status');
