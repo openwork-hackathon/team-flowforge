@@ -37,4 +37,3 @@ export default function RootLayout({
     </html>
   );
 }
-// Vercel rebuild trigger: Fri Feb  6 02:47:27 PM UTC 2026
