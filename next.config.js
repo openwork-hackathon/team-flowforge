@@ -1,6 +1,3 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  // Force cache invalidation - rebuild trigger
-  generateBuildId: async () => `build-${Date.now()}`,
-};
+const nextConfig = {};
 module.exports = nextConfig;
