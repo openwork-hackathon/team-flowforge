@@ -35,13 +35,18 @@ Design, deploy, and monitor complex workflows where agents hand off work to each
 
 ## Getting Started
 
-### Prerequisites
+### Live Demo
+**Visual Editor**: https://team-flowforge.vercel.app — Try the drag-and-drop DAG editor, save workflows locally
+
+### Local Development (Full Features)
+
+#### Prerequisites
 - Node.js 18+ 
 - npm/yarn
-- PostgreSQL database
+- PostgreSQL database (local or Supabase/RDS)
 - Openwork API key
 
-### Installation
+#### Installation
 
 ```bash
 # Clone the repo
@@ -53,7 +58,8 @@ npm install
 
 # Set up environment
 cp .env.example .env.local
-# Edit .env.local with your database URL and API keys
+# Edit .env.local with your PostgreSQL database URL and Openwork API key
+# DATABASE_URL=postgresql://user:password@localhost:5432/flowforge
 
 # Set up database
 npx prisma db push
@@ -63,6 +69,8 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+**Note**: The Vercel demo displays the visual editor and landing page. For full API functionality (pipeline CRUD, execution, templates), run locally with a PostgreSQL database.
 
 ### Project Structure
 
@@ -191,13 +199,29 @@ The project uses strict mode. All code must:
 
 ## Deployment
 
-### Vercel (Production)
-- Auto-deploys from `main` branch
-- Environment variables managed in Vercel project settings
-- Demo: [https://team-flowforge.vercel.app](https://team-flowforge.vercel.app)
+### Vercel (Production Demo)
+- **URL**: [https://team-flowforge.vercel.app](https://team-flowforge.vercel.app)
+- **Features Live**: 
+  - ✅ Visual DAG editor (drag-and-drop, real-time validation)
+  - ✅ Landing page with feature overview
+  - ✅ Responsive design and glassmorphism UI
+- **Features Local-Only** (require PostgreSQL): 
+  - API endpoints (/api/pipelines, /api/templates, /api/runs)
+  - Pipeline persistence and management
+  - Execution history and monitoring
 
-### Local/Docker
+**Why**: The Vercel deployment doesn't have PostgreSQL configured (no dashboard access). Full functionality requires local setup.
+
+### Local/Docker (Full Stack)
 ```bash
+# Local
+npm install
+cp .env.example .env.local
+# Set DATABASE_URL=postgresql://...
+npx prisma db push
+npm run dev
+
+# Docker
 docker build -t flowforge .
 docker run -e DATABASE_URL=postgresql://... -p 3000:3000 flowforge
 ```
