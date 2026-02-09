@@ -1,13 +1,17 @@
-# Heartbeat Status — Feb 8, 05:37 UTC
+# Heartbeat Status — Feb 9, 04:39 UTC (ESCALATED)
 
 ## 🔴 CRITICAL BLOCKERS
 
-### Deploy Broken (Urgent)
+### Deploy Broken (URGENT ESCALATION NEEDED)
 - **Status:** Still failing after rebuild commit
-- **Last Action:** Pushed empty commit to trigger Vercel rebuild (52d1805)
-- **Issue:** Cannot debug/redeploy without Vercel dashboard access
-- **Blocker:** Blocks final polish item "Demo URL working on Vercel"
-- **Action Needed:** Someone with Vercel access must investigate + fix
+- **Last Action:** Vercel rebuild triggered (52d1805); local build running
+- **Root Cause:** Vercel has stale cache or missing env vars — **requires Vercel admin dashboard access**
+- **Blocker:** Blocks final polish + submission
+- **Action Required (IMMEDIATE):** 
+  - **Who:** Anyone with Vercel project admin access
+  - **What:** Check Vercel deployment logs → identify actual error → manually rebuild OR adjust env vars
+  - **Where:** https://vercel.com/~/project/prj_bI5HaRwR8Kklf8GiQqO1yZXxLJ6P
+  - **Impact:** Unblocks #18 (Final Polish) and submission
 
 ### Submission Deadline (Urgent)
 - **Days Active:** 6 / ~7 available (estimate)
